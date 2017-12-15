@@ -7,16 +7,14 @@ test_labels = test(:,1);
 
 % Parameters
 k_arr = [1:4:size(train_data,1)];
-%chisquaredist = @(x,Z)sqrt((bsxfun(@minus,x,Z).^2)*w);
-chisquare = @(A,B)pdist2_custom(A,B,'chisq');
+% chisquare = @(A,B)pdist2_custom(A,B,'chisq');
+chisquaredist = @(x,Z)sqrt((bsxfun(@minus,x,Z).^2)*w);
 earthmovers = @(A,B)pdist2_custom(A,B,'emd');
 kullbackleibler = @(A,B)KLDiv(A,B);
-intersection = @(A,B)intersection_dist(A,B);
-jensenshannon = @(A,B)jensen_shannon_dist(A,B);
-% quadraticform = @(A,B)quadratic_form_dist(A,B);
-distance_metrics = ["cityblock","euclidean","chebychev","cosine","correlation","intersection","kullbackleibler","jensenshannon","chisquare","earthmovers","mahalanobis"]; % "minkowski","seuclidean"
+distance_metrics = ["cityblock","euclidean","chebychev","cosine","correlation","mahalanobis","chisquare","kullbackleibler","earthmovers"]; % "minkowski","seuclidean"
 
-% STILL NEED TO IMPLEMENT: Quadratic form, Quadratic Chi
+% STILL NEED TO IMPLEMENT: Intersection, Kullback-Leibler divergence,
+% Jenses-Shanon divergence, Chi square, Quadratic form, Earth movers
 
 %%
 errors = zeros(size(distance_metrics,2), size(k_arr,2));
@@ -28,17 +26,11 @@ for ind_k = 1:size(k_arr,2)
         dist = char(distance_metrics(ind_d))
 
         if strcmp(dist,'chisquare')
-            neighbor_indices = knn_custom(train_data, test_data, K, chisquare);
-        elseif strcmp(dist,'intersection')
-            neighbor_indices = knn_custom(train_data, test_data, K, intersection);
-        elseif strcmp(dist,'jensenshannon')
-            neighbor_indices = knn_custom(train_data, test_data, K, jensenshannon);
-%         elseif strcmp(dist,'quadraticform')
-%             neighbor_indices = knn_custom(train_data, test_data, K, quadraticform);
+            neighbor_indices = knnsearch(train_data, test_data, 'K', K, 'distance', chisquare);
         elseif strcmp(dist,'earthmovers')
-            neighbor_indices = knn_custom(train_data, test_data, K, earthmovers);
+            neighbor_indices = knnsearch(train_data, test_data, 'K', K, 'distance', earthmovers);
         elseif strcmp(dist,'kullbackleibler')
-            neighbor_indices = knn_custom(train_data, test_data, K, kullbackleibler);
+            neighbor_indices = knnsearch(train_data, test_data, 'K', K, 'distance', kullbackleibler);
         else
             neighbor_indices = knnsearch(train_data, test_data, 'K', K, 'distance', dist);
         end
