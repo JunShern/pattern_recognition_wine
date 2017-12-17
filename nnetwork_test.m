@@ -21,8 +21,6 @@ else
     return
 end
 
-net.performFcn = 'mse';     % Set the performance function to mean squared error
-
 % Disable the UI window
 net.trainParam.showWindow = 0;
 
@@ -34,6 +32,8 @@ setdemorandstream(391418381);
 tic();
 net = train(net,training, l_training);
 time_train = toc();
+
+net.performFcn = 'mse';     % Set the performance function to mean squared error
 
 % Run test data through network
 
