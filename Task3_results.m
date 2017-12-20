@@ -1,4 +1,4 @@
-data = readtable('results5.csv');
+data = readtable('results7.csv');
 
 algs = ['trainlm '; 'trainbr '; 'trainbfg'; 'trainrp '; ...
         'trainscg'; 'traincgb'; 'traincgf'; 'traincgp'; ...
@@ -6,32 +6,39 @@ algs = ['trainlm '; 'trainbr '; 'trainbfg'; 'trainrp '; ...
 training_algs = cellstr(algs);
     
 % Pre-allocate variables for speed
-func_lm = zeros(15, 5);  count_lm = 1;
-func_br = zeros(15, 5);  count_br = 1;
-func_bfg = zeros(15, 5); count_bfg = 1;
-func_rp = zeros(15, 5);  count_rp = 1;
-func_scg = zeros(15, 5); count_scg = 1;
-func_cgb = zeros(15, 5); count_cgb = 1;
-func_cgf = zeros(15, 5); count_cgf = 1;
-func_cgp = zeros(15, 5); count_cgp = 1;
-func_oss = zeros(15, 5); count_oss = 1;
-func_gdx = zeros(15, 5); count_gdx = 1;
-func_gdm = zeros(15, 5); count_gdm = 1;
-func_gd = zeros(15, 5);  count_gd = 1;
+func_lm = zeros(16, 5);  count_lm = 1;
+func_br = zeros(16, 5);  count_br = 1;
+func_bfg = zeros(16, 5); count_bfg = 1;
+func_rp = zeros(16, 5);  count_rp = 1;
+func_scg = zeros(16, 5); count_scg = 1;
+func_cgb = zeros(16, 5); count_cgb = 1;
+func_cgf = zeros(16, 5); count_cgf = 1;
+func_cgp = zeros(16, 5); count_cgp = 1;
+func_oss = zeros(16, 5); count_oss = 1;
+func_gdx = zeros(16, 5); count_gdx = 1;
+func_gdm = zeros(16, 5); count_gdm = 1;
+func_gd = zeros(16, 5);  count_gd = 1;
 
 % Dictate which variable to sort on
 sort_by_var = 5;
 
 %% Partitioning
 
+% Var1 = training algorithm
+% Var2 = training time
+% Var3 = test time
+% Var4 = hidden layers
+% Var5 = number of neurons
+% Var6 = Accuracy
+% Var7 = MSE
+
 % Partition data into separate variables
 for i=1:height(data)
     row = data(i, :);
-    wine_data = [double(row.HiddenNeurons), double(row.TimeToTrain), ...
-                 double(row.TimeToTest), double(row.Accuracy), ...
-                 double(row.SumSquaredError), ...
-                 double(row.MeanSquaredError)];
-    ta = char(row.TrainingAlgorithm);
+    wine_data = [double(row.Var5), double(row.Var2), ...
+                 double(row.Var3), double(row.Var6), ...
+                 double(row.Var7)];
+    ta = char(row.Var1);
     if strcmpi(ta, 'trainlm')
         func_lm(count_lm, :) = wine_data;
         count_lm = count_lm + 1;
@@ -116,9 +123,6 @@ disp(['Second worst algorithm is ', ...
 disp(['Worst algorithm is ', ...
       char(training_algs(indices(end)))]);
 
-
-%% Plot Unmixed
-
 % We now have the order of the best/worst algorithms and the associated
 % data, so it's time to look at generating some plots. We want to see the
 % hidden neurons on the x-axis. Plot the best one for now.
@@ -128,26 +132,70 @@ second_alg = cell2mat(arr(indices(2)));
 second_worst_alg = cell2mat(arr(indices(end-1)));
 worst_alg = cell2mat(arr(indices(end)));
 
-% Plotting Processing
+%% Plotting Processing
 figure;
+title('Mean Squared Error vs. Number of Neurons', 'interpreter', 'latex');
 xlabel('Number of Neurons');
-ylabel('Mean Square Error');
-best = [indices(1), indices(2)];
+ylabel('Mean Squared Error');
 hold on;
-plot(best_alg(:, 1), best_alg(:, sort_by_var));
-plot(second_alg(:, 1), second_alg(:, sort_by_var));
+plot(func_bfg(1:16, 1), func_bfg(1:16, sort_by_var)/100);
+plot(func_br(1:16, 1), func_br(1:16, sort_by_var)/100);
+plot(func_cgb(1:16, 1), func_cgb(1:16, sort_by_var)/100);
+plot(func_cgf(1:16, 1), func_cgf(1:16, sort_by_var)/100);
+plot(func_cgp(1:16, 1), func_cgp(1:16, sort_by_var)/100);
+plot(func_gd(1:16, 1), func_gd(1:16, sort_by_var)/100);
+plot(func_gdm(1:16, 1), func_gdm(1:16, sort_by_var)/100);
+plot(func_gdx(1:16, 1), func_gdx(1:16, sort_by_var)/100);
+plot(func_lm(1:16, 1), func_lm(1:16, sort_by_var)/100);
+plot(func_oss(1:16, 1), func_oss(1:16, sort_by_var)/100);
+plot(func_rp(1:16, 1), func_rp(1:16, sort_by_var)/100);
+plot(func_scg(1:16, 1), func_scg(1:16, sort_by_var)/100);
 legend('show');
-legend(training_algs(best));
+leg = legend('trainbfg', 'trainbr', 'traincgb', 'traincgf', 'traincgp', 'traingd', ...
+    'traingdm', 'traingdx', 'trainlm', 'trainoss', 'trainrp', 'trainscg');
 ax = gca;
 ax.XGrid = 'on';
 ax.YGrid = 'on';
 ax.XMinorGrid = 'on';
 ax.YMinorGrid = 'on';
+% Formatting for Latex
+set(leg,'FontSize', 14);
+set(findall(gcf,'type','axes'),'fontsize', 20);
+set(findall(gcf,'type','text'),'fontSize', 20);
 fig = gcf;
 fig.PaperPositionMode = 'auto';
-print('unmixed_best_fullrange', '-dpng', '-r0');
+print('graph_nets2', '-dpng', '-r0');
 
-% Set X limit to 100 to get interesting range
-%ax.XLim = [0 100];
-%print(strjoin({pic_path 'unmixed_best_limited'}, filesep), '-dpng');
+%% Plot Timings
 
+figure;
+title('Training Time vs. Number of Neurons', 'interpreter', 'latex');
+xlabel('Number of Neurons');
+ylabel('Training Time (s)');
+hold on;
+plot(func_bfg(1:16, 1), func_bfg(1:16, 2));
+plot(func_br(1:16, 1), func_br(1:16, 2));
+plot(func_cgb(1:16, 1), func_cgb(1:16, 2));
+plot(func_cgf(1:16, 1), func_cgf(1:16, 2));
+plot(func_cgp(1:16, 1), func_cgp(1:16, 2));
+plot(func_gd(1:16, 1), func_gd(1:16, 2));
+plot(func_gdm(1:16, 1), func_gdm(1:16, 2));
+plot(func_gdx(1:16, 1), func_gdx(1:16, 2));
+plot(func_lm(1:16, 1), func_lm(1:16, 2));
+plot(func_oss(1:16, 1), func_oss(1:16, 2));
+plot(func_rp(1:16, 1), func_rp(1:16, 2));
+plot(func_scg(17:32, 1), func_scg(17:32, 2));
+legend('show');
+leg = legend('trainbfg', 'trainbr', 'traincgb', 'traincgf', 'traincgp', 'traingd', ...
+    'traingdm', 'traingdx', 'trainlm', 'trainoss', 'trainrp', 'trainscg');
+ax = gca;
+ax.XGrid = 'on';
+ax.YGrid = 'on';
+ax.XMinorGrid = 'on';
+ax.YMinorGrid = 'on';
+set(leg,'FontSize', 12);
+set(findall(gcf,'type','axes'),'fontsize', 18);
+set(findall(gcf,'type','text'),'fontSize', 18);
+fig = gcf;
+fig.PaperPositionMode = 'auto';
+print('graph_nets_timings2', '-dpng', '-r0');

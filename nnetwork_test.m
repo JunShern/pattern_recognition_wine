@@ -26,9 +26,9 @@ net.trainParam.showWindow = 0;
 
 % Train the Neural Network
 
-% Make starting random initial weights for neural networks not random
-setdemorandstream(391418381);
+%setdemorandstream(391418381);
 
+net = configure(net,training,l_training);
 tic();
 net = train(net,training, l_training);
 time_train = toc();

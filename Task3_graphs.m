@@ -3,17 +3,15 @@ wine_data = importdata('wine.data.csv');
 % Make different arrays with variables in order to test for different
 % parameters
 
-neurons = [1,2,3,4,5,10,15,20,25,30,35,40,45,50,55,60];
-funcs = ['trainlm '; 'trainbr '; 'trainbfg'; 'trainrp '; ...
-        'trainscg'; 'traincgb'; 'traincgf'; 'traincgp'; ...
-        'trainoss'; 'traingdx'; 'traingdm'; 'traingd '];
-hidden_layers = [1, 2, 3, 4];
+neurons = [1,2,3,4,5,10,15,20,25,30,35,40,45,50,55,60,65,70,80,90,100,110,120,130,140,150,160,170,180,190,200];
+funcs = ['traingd '; 'traincgp'];
+hidden_layers = [1,2,3,4];
 ntypes = 'patternnet';
 net_types = cellstr(ntypes);
 training_funcs = cellstr(funcs);
 
 % Need to store everything into something (a CSV file for example)
-handle = fopen('results.csv', 'w'); 
+handle = fopen('results_best_algs3.csv', 'w'); 
 headings = ['NetworkType,TrainingAlgorithm,'...
             'HiddenLayers,HiddenNeurons,TimetoTrain,TimetoTest,'...
             'Accuracy,SumSquaredError,MeanSquaredError', ...
@@ -110,11 +108,10 @@ for nt = 1:length(net_types)
                 num2str(hidden_layers(hl)), ',', num2str(neurons(ne)), ',', num2str(accuracy), ',', ... 
                 num2str(sum(error)), ',', num2str(sum(error)/length(error)), ...
                 ',', sprintf('\n')];
-            handle = fopen('results7.csv', 'a');
+            handle = fopen('results_best_algs3.csv', 'a');
             fwrite(handle,data);
             fclose(handle);
             end
         end
     end
 end
-            
